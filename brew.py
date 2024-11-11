@@ -26,25 +26,21 @@ class Brew(dotbot.Plugin):
                 "stdin": False,
                 "stderr": False,
                 "stdout": False,
-                "force_intel": False,
             },
             "cask": {
                 "stdin": False,
                 "stderr": False,
                 "stdout": False,
-                "force_intel": False,
             },
             "brewfile": {
                 "stdin": True,
                 "stderr": True,
                 "stdout": True,
-                "force_intel": False,
             },
             "install-brew": {
                 "stdin": True,
                 "stderr": True,
                 "stdout": True,
-                "force_intel": False,
             },
         }
         super().__init__(*args, **kwargs)
@@ -60,9 +56,6 @@ class Brew(dotbot.Plugin):
 
     def _invoke_shell_command(self, cmd: str, defaults: Mapping[str, Any]) -> int:
         with open(os.devnull, "w") as devnull:
-            if defaults["force_intel"]:
-                cmd = "arch --x86_64 " + cmd
-
             return subprocess.call(
                 cmd,
                 shell=True,
@@ -90,9 +83,9 @@ class Brew(dotbot.Plugin):
 
         for pkg in packages:
             run = self._install(
-                "brew install {pkg}",
-                "test -d /usr/local/Cellar/{pkg_name} "
-                + "|| brew ls --versions {pkg_name}",
+                "/opt/homebrew/bin/brew install {pkg}",
+                "test -d /opt/homebrew/Cellar/{pkg_name} "
+                + "|| /opt/homebrew/bin/brew ls --versions {pkg_name}",
                 pkg,
                 defaults,
             )
@@ -110,9 +103,9 @@ class Brew(dotbot.Plugin):
 
         for pkg in packages:
             run = self._install(
-                "brew install --cask {pkg}",
-                "test -d /usr/local/Caskroom/{pkg_name} "
-                + "|| brew ls --cask --versions {pkg_name}",
+                "/opt/homebrew/bin/brew install --cask {pkg}",
+                "test -d /opt/homebrew/Caskroom/{pkg_name} "
+                + "|| /opt/homebrew/bin/brew ls --cask --versions {pkg_name}",
                 pkg,
                 defaults,
             )
@@ -170,7 +163,7 @@ class Brew(dotbot.Plugin):
 
         for file in brew_files:
             self._log.info(f"Installing from file {file}")
-            cmd = f"brew bundle --verbose --file={file}"
+            cmd = f"/opt/homebrew/bin/brew bundle --verbose --file={file}"
 
             if 0 != self._invoke_shell_command(cmd, defaults):
                 self._log.warning(f"Failed to install file [{file}]")
@@ -185,4 +178,4 @@ class Brew(dotbot.Plugin):
 
         link = "https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh"
         cmd = f'/bin/bash -c "$(curl -fsSL {link})"'
-        return self._install(cmd, 'command -v brew', 'brew', defaults)
+        return self._install(cmd, 'command -v /opt/homebrew/bin/brew', 'brew', defaults)
