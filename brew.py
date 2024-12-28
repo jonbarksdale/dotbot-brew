@@ -42,6 +42,11 @@ class Brew(dotbot.Plugin):
                 "stderr": True,
                 "stdout": True,
             },
+            "tap": {
+                "stdin": False,
+                "stderr": False,
+                "stdout": False,
+            },
         }
         super().__init__(*args, **kwargs)
 
